@@ -35,6 +35,7 @@ exports.generateFakeResponse = function( plugs, version, key ) {
   // version is a string of v3 or v4
   var payload = {
     readMeter: {
+      Requested: 0,
       ReadSet: []
     }
   };

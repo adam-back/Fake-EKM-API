@@ -1,6 +1,7 @@
-var caches = require( './cache' );
-var moment = require( 'moment' );
-var faker  = require( 'faker' );
+var extraFake = require( './extraFake' );
+var caches    = require( './cache' );
+var moment    = require( 'moment' );
+var faker     = require( 'faker' );
 
 exports.beginsCharging = function() {
   return Math.random() < .3 ? true : false;
@@ -8,8 +9,30 @@ exports.beginsCharging = function() {
 
 exports.createIdleReadingValues = function( key, version, plug ) {
   // get kWh from cache
-  // increment kWh
-  // update cache
+  var idle = cache.cache[ key ][ version ][ plug.ekm_omnimeter_serial ];
+
+  return {
+    "Meter": plug.ekm_omnimeter_serial,
+    "Group":564257,
+    "Interval":60,
+    "Protocol": version,
+    "MAC_Addr": extraFake.generateFakeMacAddress(),
+    "Tz_Offset_Sec":0,
+    "Bad_Reads":0,
+    "Good_Reads":1,
+    "Credits":1000000,
+    "ReadData": [{
+      "Good":1,
+      "Time_Stamp_UTC_ms": moment().valueOf(),
+      "Firmware":"15",
+      "Model":"2410",
+      "kWh_Tot": idle.kwh,
+      "RMS_Volts_Ln_1": faker.random.number( { min: 117, max: 125 } ).toString(),
+      "RMS_Volts_Ln_2": faker.random.number( { min: 117, max: 125 } ).toString(),
+      "Power_Factor_Ln_1": faker.random.number( { min: 80, max: 125 } ).toString(),
+      "Power_Factor_Ln_2": faker.random.number( { min: 80, max: 125 } ).toString()
+      }]
+    };
 };
 
 exports.createNewEvent = function( plug ) {
@@ -32,6 +55,34 @@ exports.createChargeEventValues = function( key, version, plug ) {
   // increment kWh
   event.kwh += 0.1;
   // update cache
+  cache.cache[ key ][ version ][ plug.ekm_omnimeter_serial ] = event;
+
+  var fakeReading = {
+    "Meter": plug.ekm_omnimeter_serial,
+    "Group":564257,
+    "Interval":60,
+    "Protocol": version,
+    "MAC_Addr": extraFake.generateFakeMacAddress(),
+    "Tz_Offset_Sec":0,
+    "Bad_Reads":0,
+    "Good_Reads":1,
+    "Credits":1000000,
+    "ReadData": [{
+      "Good":1,
+      "Time_Stamp_UTC_ms": moment().valueOf(),
+      "Firmware":"13",
+      "Model":"1710",
+      "kWh_Tot": event.kWh.toString(),
+      "RMS_Volts_Ln_1": faker.random.number( { min: 117, max: 125 } ).toString(),
+      "RMS_Volts_Ln_2": faker.random.number( { min: 117, max: 125 } ).toString(),
+      "Amps_Ln_1": faker.random.number( { min: 10, max: 25 } ).toString(),
+      "Amps_Ln_2": faker.random.number( { min: 10, max: 25 } ).toString(),
+      "Power_Factor_Ln_1": faker.random.number( { min: 80, max: 125 } ).toString(),
+      "Power_Factor_Ln_2": faker.random.number( { min: 80, max: 125 } ).toString()
+      }]
+    };
+
+  return fakeReading;
 };
 
 exports.createGoodSet = function( key, version, plugs, type ) {
