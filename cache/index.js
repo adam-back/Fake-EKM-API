@@ -42,14 +42,14 @@ exports.cache = {
   */
 };
 
-exports.checkForEndedEvents = function( key ) {
+exports.checkForEndedEvents = function( version, key ) {
   // ended events can be:
   // 1. charging events
   // 2. errors
   var now = moment();
   var close = [];
-  for ( var meter in exports.cache[ key ] ) {
-    var reading = exports.cache[ key ][ meter ];
+  for ( var meter in exports.cache[ key ][ version ] ) {
+    var reading = exports.cache[ key ][ version ][ meter ];
     if ( moment.isMoment( reading.until ) && reading.until.isAfter( now ) ) {
       close.push( reading );
     }
@@ -99,11 +99,8 @@ exports.addNewEntriesToCache = function( plugs, version, key, numFake ) {
     var fakeKwh = faker.random.number( { min: 0, max: 40000 } );
     fakeKwh += Math.random(); // add decimals
     fakeKwh = Number( fakeKwh.toFixed( 1 ) ); //round to tenths
-    exports.cache[ key ][ version ][ fakeMeter ] = exports.createIdleData( { ekm_omnimeter_serial: fakeMeter, cumulative_kwh: fakeKwh } );
-
     exports.addOneNewEntryToCache( { ekm_omnimeter_serial: fakeMeter, cumulative_kwh: fakeKwh }, version, key );
   }
 
-  exports.lastCalls[ key ] = moment();
   return exports.cache[ key ][ version ];
 };

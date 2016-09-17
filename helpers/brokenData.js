@@ -1,9 +1,14 @@
 var extraFake = require( './extraFake' );
 var good      = require( './goodDate' );
 var moment    = require( 'moment' );
+var faker     = require( 'faker' );
 
 exports.randomBroken = function() {
   return Math.random() < 0.1 ? true : false;
+};
+
+exports.howManyMinutesBroken = function() {
+  return faker.random.number( { min: 1, max: 10 } );
 };
 
 exports.typeOfBroken = function() {
@@ -82,14 +87,23 @@ exports.createBrokenMeterValues = function( meter, type ) {
   }
 };
 
-exports.createBrokenSet = function( plugs ) {
+exports.createBrokenSet = function( key, version, plugs ) {
   var set = [];
 
   for ( var numPlugs = plugs.length, i = 0; i < numPlugs; i++ ) {
     var plug = plugs[ i ];
     var type = exports.typeOfBroken();
-
-    set.push( exports.createBrokenMeterValues( plug.ekm_omnimeter_serial, type ) );
+    var broke = exports.createBrokenMeterValues( plug.ekm_omnimeter_serial, type );
+    // update cache
+    cache.cache[ key ][ version ][ plug.ekm_omnimeter_serial ] = {
+      status: 'error',
+      error: type,
+      until: moment().add( exports.howManyMinutesBroken(), 'minutes' ),
+      kwh: plus.ekm_omnimeter_serial,
+      meter: plug.ekm_omnimeter_serial
+    };
+    // push reading
+    set.push( broke );
   }
 
   return set;
