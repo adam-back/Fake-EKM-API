@@ -41,3 +41,35 @@ exports.decideFate = function( status ) {
 
   return fate;
 };
+
+exports.decideMany = function( plugs, skipList )  {
+  var broken = [];
+  var charging = [];
+  var idle = [];
+
+  // see if any existing charge events or errors need to clear
+  for ( var numPlugs = plugs.length, i = 0; i < numPlugs; i++ ) {
+    var plug = plugs[ i ];
+
+    if ( skipList[ plug.ekm_omnimeter_serial ] ) {
+      continue;
+
+    } else {
+      var newFate = fate.decideFate( plug.status );
+      if ( newFate === 'broken' ) {
+        broken.push( plug );
+      } else if ( newFate === 'charging' ) {
+        charging.push( plug );
+      } else {
+        idle.push( plug );
+      }
+    }
+
+  }
+
+  return {
+    broken: broken,
+    charging: charging,
+    idle: idle
+  };
+};
