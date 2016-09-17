@@ -1,32 +1,40 @@
 var broken = require( './brokenData' );
-var good = require( './goodData' );
+var cache  = require( '../cache' );
+var good   = require( './goodData' );
+var moment = require( 'moment' );
 
-exports.createNewDataSet = function( plugs, version, key ) {
-  var broken = [];
-  var good = [];
+var updateExisitingDataSet = function( plugs, version, key ) {
+  // see if any existing charge events or errors need to clear
+  var needClosing = cache.checkForEndedEvents( key );
+  // to close, readings can either move into charge event, idle, or new error
 
-  // sort into broken and good
+
+
   for ( var numPlugs = plugs.length, i = 0; i < numPlugs; i++ ) {
     var plug = plugs[ i ];
-    if ( broken.randomBroken() ) {
-      broken.push( plug );
-    } else {
-      good.push( plug );
+    var plugFromCache = cache.cache[ key ][ plug.ekm_omnimeter_serial ];
+
+    if ( plugFromCache ) {
+
     }
   }
-
-  return [].concat( broken.createBrokenSet, good.createGoodSet );
 };
 
 exports.generateFakeResponse = function( plugs, version, key ) {
   // meters is an array of meter numbers as string
   // version is a string of v3 or v4
   var payload = {};
+  var readings = [];
 
   // if key is not in the cache
+  if ( cache.hasOwnProperty( key ) === false ) {
     // create everything from scratch
-  // else the key is in the cache
-    // update readings
+    cache.addNewEntriesToCache( key, plugs );
+  }
+
+  readings = updateExisitingDataSet( plugs, version, key );
 
   return payload;
 };
+
+module.exports = generateFakeResponse;
