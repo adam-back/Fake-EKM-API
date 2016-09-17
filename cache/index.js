@@ -68,6 +68,12 @@ exports.createIdleData = function( plug ) {
   };
 };
 
+exports.addOneNewEntryToCache = function( plug, version, key ) {
+  var data = exports.createIdleData( plug );
+  exports.cache[ key ][ version ][ plug.ekm_omnimeter_serial ] = data;
+  return data;
+};
+
 exports.addNewEntriesToCache = function( plugs, version, key, numFake ) {
   numFake = numFake || 10;
 
@@ -84,7 +90,7 @@ exports.addNewEntriesToCache = function( plugs, version, key, numFake ) {
   // add plugs from actual system
   for ( var numPlugs = plugs.length, i = 0; i < numPlugs; i++ ) {
     var plug = plugs[ i ];
-    exports.cache[ key ][ version ][ plug.ekm_omnimeter_serial ] = exports.createIdleData( plug );
+    exports.addOneNewEntryToCache( plug, version, key );
   }
 
   // add # plugs which aren't in system
@@ -94,6 +100,8 @@ exports.addNewEntriesToCache = function( plugs, version, key, numFake ) {
     fakeKwh += Math.random(); // add decimals
     fakeKwh = Number( fakeKwh.toFixed( 1 ) ); //round to tenths
     exports.cache[ key ][ version ][ fakeMeter ] = exports.createIdleData( { ekm_omnimeter_serial: fakeMeter, cumulative_kwh: fakeKwh } );
+
+    exports.addOneNewEntryToCache( { ekm_omnimeter_serial: fakeMeter, cumulative_kwh: fakeKwh }, version, key );
   }
 
   exports.lastCalls[ key ] = moment();
