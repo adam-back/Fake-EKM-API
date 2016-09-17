@@ -55,7 +55,7 @@ exports.createBrokenMeterValues = function( meter, type ) {
 };
 
 exports.createBrokenSet = function( plugs ) {
-  var set = []
+  var set = [];
 
   for ( var numPlugs = plugs.length, i = 0; i < numPlugs; i++ ) {
     var plug = plugs[ i ];

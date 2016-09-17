@@ -1,23 +1,33 @@
 var broken = require( './brokenData' );
 var cache  = require( '../cache' );
 var good   = require( './goodData' );
+var fate   = require( './fate' );
 var moment = require( 'moment' );
 
 var updateExisitingDataSet = function( plugs, version, key ) {
-  // see if any existing charge events or errors need to clear
   var needClosing = cache.checkForEndedEvents( key );
-  // to close, readings can either move into charge event, idle, or new error
+  // create a skip list so those plugs don't get overwritten by system plugs
+  for ( var numNeedClosing = needClosing.length, i = 0; i < numNeedClosing; i++ ) {
+    var oneNeedClosing = needClosing[ i ];
+    skipList[ oneNeedClosing.ekm_omnimeter_serial ] = true;
+  }
+  var closed = fate.decideMany( needClosing, {} );
 
-
-
+  // add new plugs to the cache
   for ( var numPlugs = plugs.length, i = 0; i < numPlugs; i++ ) {
-    var plug = plugs[ i ];
-    var plugFromCache = cache.cache[ key ][ plug.ekm_omnimeter_serial ];
+    var plugFromSystem = plugs[ i ];
+    var plugFromCache = cache.cache[ key ][ version ][ plugFromCache.ekm_omnimeter_serial ];
 
-    if ( plugFromCache ) {
-
+    if ( !plugFromCache ) {
+      plugFromCache = cache.addOneNewEntryToCache( plugFromSystem, version, key );
     }
   }
+
+  var updates = fate.decideMany( plugs, skipList );
+  var brokenReadings = broken.createBrokenSet( closed.broken.concat( updates.broken ) );
+  var goodReadings = good.createGoodSet( closed.good.concat( updates.good, 'idle' ) );
+  var chargeReadings = good.createGoodSet( closed.charging.concat( updates.charging, 'charging' ) );
+  return [].concat( brokenReadings, goodReadings, chargeReadings );
 };
 
 exports.generateFakeResponse = function( plugs, version, key ) {
@@ -30,7 +40,7 @@ exports.generateFakeResponse = function( plugs, version, key ) {
   };
 
   // if key is not in the cache
-  if ( cache.hasOwnProperty( key ) === false ) {
+  if ( cache[ cache ].hasOwnProperty( key ) === false || cache.cache[ key ].hasOwnProperty( version ) ) {
     // create everything from scratch
     cache.addNewEntriesToCache( plugs, version, key );
   }
