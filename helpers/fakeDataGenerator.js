@@ -25,8 +25,8 @@ var updateExisitingDataSet = function( plugs, version, key ) {
 
   var updates = fate.decideMany( plugs, skipList );
   var brokenReadings = broken.createBrokenSet( closed.broken.concat( updates.broken ) );
-  var goodReadings = good.createGoodSet( closed.good.concat( updates.good, 'idle' ) );
-  var chargeReadings = good.createGoodSet( closed.charging.concat( updates.charging, 'charging' ) );
+  var goodReadings = good.createGoodSet( closed.good.concat( key, version, updates.good, 'idle' ) );
+  var chargeReadings = good.createGoodSet( closed.charging.concat( key, version, updates.charging, 'charging' ) );
   return [].concat( brokenReadings, goodReadings, chargeReadings );
 };
 
