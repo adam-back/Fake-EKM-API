@@ -6,6 +6,10 @@ var faker  = require( 'faker' );
   cache.
 */
 
+exports.lastCalls = {
+  // apiKey: moment
+};
+
 exports.cache = {
   /*
     apiKey: {
@@ -64,7 +68,15 @@ exports.createIdleData = function( plug ) {
   };
 };
 
-exports.addNewEntriesToCache = function( plugs, version, key ) {
+exports.addNewEntriesToCache = function( plugs, version, key, numFake ) {
+  numFake = numFake || 10;
+
+  // add new keys
+  if ( !exports.cache.hasOwnProperty( key ) ) {
+    exports.cache[ key ] = {};
+  }
+
+  // add new versions
   if ( !exports.cache[ key ].hasOwnProperty( version ) ) {
     exports.cache[ key ][ version ] = {};
   }
@@ -75,8 +87,8 @@ exports.addNewEntriesToCache = function( plugs, version, key ) {
     exports.cache[ key ][ version ][ plug.ekm_omnimeter_serial ] = exports.createIdleData( plug );
   }
 
-  // add plugs which aren't in system
-  for ( var j = 0; j < 7; j++ ) {
+  // add # plugs which aren't in system
+  for ( var j = 0; j < numFake; j++ ) {
     var fakeMeter = faker.random.number( { min: 10000, max: 400000000 } );
     var fakeKwh = faker.random.number( { min: 0, max: 40000 } );
     fakeKwh += Math.random(); // add decimals
@@ -84,5 +96,6 @@ exports.addNewEntriesToCache = function( plugs, version, key ) {
     exports.cache[ key ][ version ][ fakeMeter ] = exports.createIdleData( { ekm_omnimeter_serial: fakeMeter, cumulative_kwh: fakeKwh } );
   }
 
+  exports.lastCalls[ key ] = moment();
   return exports.cache[ key ][ version ];
 };

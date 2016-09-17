@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('Fake-EKM-API:server');
 var http = require('http');
+var utils = require( '../utils/cleanup' );
 
 /**
  * Get port from environment and store in Express.
@@ -82,6 +83,7 @@ function onError(error) {
  */
 
 function onListening() {
+  utils.cleanCacheOnInterval();
   var addr = server.address();
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
