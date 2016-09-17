@@ -23,17 +23,19 @@ var updateExisitingDataSet = function( plugs, version, key ) {
 exports.generateFakeResponse = function( plugs, version, key ) {
   // meters is an array of meter numbers as string
   // version is a string of v3 or v4
-  var payload = {};
-  var readings = [];
+  var payload = {
+    readMeter: {
+      ReadSet: []
+    }
+  };
 
   // if key is not in the cache
   if ( cache.hasOwnProperty( key ) === false ) {
     // create everything from scratch
-    cache.addNewEntriesToCache( key, plugs );
+    cache.addNewEntriesToCache( plugs, version, key );
   }
 
-  readings = updateExisitingDataSet( plugs, version, key );
-
+  payload.readMeter.ReadSet = updateExisitingDataSet( plugs, version, key );
   return payload;
 };
 
