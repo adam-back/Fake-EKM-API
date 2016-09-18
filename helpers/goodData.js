@@ -87,7 +87,7 @@ exports.createChargeEventValues = function( key, version, plug ) {
       "Time_Stamp_UTC_ms": moment().valueOf(),
       "Firmware":"13",
       "Model":"1710",
-      "kWh_Tot": event.kWh.toString(),
+      "kWh_Tot": event.kwh.toString(),
       "RMS_Volts_Ln_1": faker.random.number( { min: 117, max: 125 } ).toString(),
       "RMS_Volts_Ln_2": faker.random.number( { min: 117, max: 125 } ).toString(),
       "Amps_Ln_1": faker.random.number( { min: 10, max: 25 } ).toString(),

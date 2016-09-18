@@ -4,7 +4,7 @@ var broken  = require( './brokenData' );
 exports.decideFate = function( status ) {
   var fate;
   var charging = good.beginsCharging();
-  var broken = broken.randomBroken();
+  var broke = broken.randomBroken();
 
   // if moving out of error
   if ( status === 'error' ) {
@@ -18,7 +18,7 @@ exports.decideFate = function( status ) {
   // if moving out of charging
   } else if ( status === 'charging' ) {
     // due to broken
-    if ( broken ) {
+    if ( broke ) {
       fate = 'broken';
     // due to end event
     } else {
@@ -31,7 +31,7 @@ exports.decideFate = function( status ) {
     if ( charging ) {
       fate = 'charging';
     // now broken
-    } else if ( broken ){
+    } else if ( broke ){
       fate = 'broken';
     // still idle
     } else {
@@ -57,7 +57,7 @@ exports.decideMany = function( plugs, skipList )  {
       continue;
 
     } else {
-      var newFate = fate.decideFate( plug.status );
+      var newFate = exports.decideFate( plug.status );
       if ( newFate === 'broken' ) {
         broke.push( plug );
       } else if ( newFate === 'charging' ) {

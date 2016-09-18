@@ -7,6 +7,7 @@ var moment = require( 'moment' );
 var updateExisitingDataSet = function( plugs, version, key ) {
   var needClosing = cache.checkForEndedEvents( version, key );
   var skipList = {};
+
   // create a skip list so those plugs don't get overwritten by system plugs
   for ( var numNeedClosing = needClosing.length, i = 0; i < numNeedClosing; i++ ) {
     var oneNeedClosing = needClosing[ i ];
@@ -17,7 +18,7 @@ var updateExisitingDataSet = function( plugs, version, key ) {
   // add new plugs to the cache
   for ( var numPlugs = plugs.length, j = 0; j < numPlugs; j++ ) {
     var plugFromSystem = plugs[ j ];
-    var plugFromCache = cache.cache[ key ][ version ][ plugFromCache.ekm_omnimeter_serial ];
+    var plugFromCache = cache.cache[ key ][ version ][ plugFromSystem.ekm_omnimeter_serial ];
 
     if ( !plugFromCache ) {
       plugFromCache = cache.addOneNewEntryToCache( plugFromSystem, version, key );
@@ -26,8 +27,9 @@ var updateExisitingDataSet = function( plugs, version, key ) {
 
   var updates = fate.decideMany( plugs, skipList );
   var brokenReadings = broken.createBrokenSet( key, version, closed.broken.concat( updates.broken ) );
-  var goodReadings = good.createGoodSet( key, version, closed.good.concat( updates.good ), 'idle' );
+  var goodReadings = good.createGoodSet( key, version, closed.idle.concat( updates.idle ), 'idle' );
   var chargeReadings = good.createGoodSet( key, version, closed.charging.concat( updates.charging ), 'charging' );
+
   return [].concat( brokenReadings, goodReadings, chargeReadings );
 };
 
@@ -49,7 +51,7 @@ var generateFakeResponse = function( plugs, version, key ) {
   }
 
   payload.readMeter.ReadSet = updateExisitingDataSet( plugs, version, key );
-  payload.readMeter.Requested = payload.readMeter.ReadSet.length();
+  payload.readMeter.Requested = payload.readMeter.ReadSet.length;
   return payload;
 };
 

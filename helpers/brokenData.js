@@ -1,5 +1,6 @@
 var extraFake = require( './extraFake' );
 var good      = require( './goodData' );
+var cache     = require( '../cache' );
 var moment    = require( 'moment' );
 var faker     = require( 'faker' );
 
@@ -74,16 +75,16 @@ exports.createIncorrectMeterReading = function( key, version, plug ) {
   return reading;
 };
 
-exports.createBrokenMeterValues = function( meter, type ) {
+exports.createBrokenMeterValues = function( key, version, plug, type ) {
   switch ( type ) {
     case 'Bad Reading':
-      return exports.createBadReading( meter );
+      return exports.createBadReading( key, version, plug );
     case 'Read Ring Buffer Failure':
-      return exports.createReadRingBufferFailure( meter );
+      return exports.createReadRingBufferFailure( key, version, plug );
     case 'Old Reading':
-      return exports.createOldReading( meter );
+      return exports.createOldReading( key, version, plug );
     default:
-      return exports.createIncorrectMeterReading( meter );
+      return exports.createIncorrectMeterReading( key, version, plug );
   }
 };
 
@@ -93,13 +94,13 @@ exports.createBrokenSet = function( key, version, plugs ) {
   for ( var numPlugs = plugs.length, i = 0; i < numPlugs; i++ ) {
     var plug = plugs[ i ];
     var type = exports.typeOfBroken();
-    var broke = exports.createBrokenMeterValues( plug.ekm_omnimeter_serial, type );
+    var broke = exports.createBrokenMeterValues( key, version, plug, type );
     // update cache
     cache.cache[ key ][ version ][ plug.ekm_omnimeter_serial ] = {
       status: 'error',
       error: type,
       until: moment().add( exports.howManyMinutesBroken(), 'minutes' ),
-      kwh: plus.ekm_omnimeter_serial,
+      kwh: plug.ekm_omnimeter_serial,
       meter: plug.ekm_omnimeter_serial
     };
     // push reading
