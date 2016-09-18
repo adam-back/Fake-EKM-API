@@ -31,12 +31,14 @@ Object.keys( db ).forEach( function( modelName ) {
   }
 });
 
-db.sequelize.sync()
+sequelize.sync()
 .then(function() {
   console.log( 'Success sync on startup' );
 })
 .catch(function( error ) {
   console.log( 'ERROR: sync on startup, ', error );
 });
+
+db.sequelize = sequelize;
 
 module.exports = db;

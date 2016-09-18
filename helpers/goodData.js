@@ -1,5 +1,5 @@
 var extraFake = require( './extraFake' );
-var caches    = require( './cache' );
+var cache     = require( '../cache' );
 var moment    = require( 'moment' );
 var faker     = require( 'faker' );
 
@@ -10,6 +10,11 @@ exports.beginsCharging = function() {
 exports.createIdleReadingValues = function( key, version, plug ) {
   // get kWh from cache
   var idle = cache.cache[ key ][ version ][ plug.ekm_omnimeter_serial ];
+
+  // create idle if it doesn't exist
+  if ( !idle ) {
+    idle = exports.createNewIdle( plug );
+  }
 
   return {
     "Meter": plug.ekm_omnimeter_serial,
@@ -40,6 +45,16 @@ exports.createNewEvent = function( plug ) {
     status: 'charging',
     error: null,
     until: moment().add( faker.random.number( { min: 5, max: 30 } ), 'minutes' ),
+    kwh: plug.cumulative_kwh,
+    meter: plug.ekm_omnimeter_serial
+  };
+};
+
+exports.createNewIdle = function( plug ) {
+  return {
+    status: 'idle',
+    error: null,
+    until: null,
     kwh: plug.cumulative_kwh,
     meter: plug.ekm_omnimeter_serial
   };

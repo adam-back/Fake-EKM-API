@@ -1,5 +1,5 @@
 var extraFake = require( './extraFake' );
-var good      = require( './goodDate' );
+var good      = require( './goodData' );
 var moment    = require( 'moment' );
 var faker     = require( 'faker' );
 

@@ -6,5 +6,3 @@ exports.generateFakeMacAddress = function() {
   fakeMAC += ':' + faker.random.number( { min: 0, max: 9} ).toString() + faker.random.number( { min: 0, max: 9} ).toString();
   return fakeMAC;
 };
-
-console.log( exports.generateFakeMacAddress() );

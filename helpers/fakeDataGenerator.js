@@ -31,7 +31,7 @@ var updateExisitingDataSet = function( plugs, version, key ) {
   return [].concat( brokenReadings, goodReadings, chargeReadings );
 };
 
-exports.generateFakeResponse = function( plugs, version, key ) {
+var generateFakeResponse = function( plugs, version, key ) {
   // meters is an array of meter numbers as string
   // version is a string of v3 or v4
   cache.lastCalls[ key ] = moment();

@@ -1,10 +1,10 @@
 var good = require( './goodData' );
-var bad = require( './badData' );
+var broken  = require( './brokenData' );
 
 exports.decideFate = function( status ) {
   var fate;
   var charging = good.beginsCharging();
-  var broken = bad.randomBroken();
+  var broken = broken.randomBroken();
 
   // if moving out of error
   if ( status === 'error' ) {
@@ -43,7 +43,9 @@ exports.decideFate = function( status ) {
 };
 
 exports.decideMany = function( plugs, skipList )  {
-  var broken = [];
+  var broke = [];
+  // broke is a specific variable name so it doesn't conflict
+  // with broken require statement at top.
   var charging = [];
   var idle = [];
 
@@ -57,7 +59,7 @@ exports.decideMany = function( plugs, skipList )  {
     } else {
       var newFate = fate.decideFate( plug.status );
       if ( newFate === 'broken' ) {
-        broken.push( plug );
+        broke.push( plug );
       } else if ( newFate === 'charging' ) {
         charging.push( plug );
       } else {
@@ -68,7 +70,7 @@ exports.decideMany = function( plugs, skipList )  {
   }
 
   return {
-    broken: broken,
+    broken: broke,
     charging: charging,
     idle: idle
   };
