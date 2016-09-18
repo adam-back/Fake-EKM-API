@@ -44,11 +44,13 @@ var generateFakeResponse = function( plugs, version, key ) {
       ReadSet: []
     }
   };
+
   var targetPlugs = meterVersioning.filterOutWrongVersions( plugs, version );
 
-  // if key is not in the cache
-  if ( cache.cache.hasOwnProperty( key ) === false || cache.cache[ key ].hasOwnProperty( version ) ) {
+  // if key or version is not in the cache
+  if ( cache.cache.hasOwnProperty( key ) === false || cache.cache[ key ].hasOwnProperty( version ) === false ) {
     // create everything from scratch
+    console.log( 'creating new' );
     cache.addNewEntriesToCache( targetPlugs, version, key );
   }
 
