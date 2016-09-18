@@ -1,8 +1,9 @@
-var broken = require( './brokenData' );
-var cache  = require( '../cache' );
-var good   = require( './goodData' );
-var fate   = require( './fate' );
-var moment = require( 'moment' );
+var meterVersioning = require( './meterVersioning' );
+var broken          = require( './brokenData' );
+var cache           = require( '../cache' );
+var good            = require( './goodData' );
+var fate            = require( './fate' );
+var moment          = require( 'moment' );
 
 var updateExisitingDataSet = function( plugs, version, key ) {
   var needClosing = cache.checkForEndedEvents( version, key );
@@ -43,14 +44,15 @@ var generateFakeResponse = function( plugs, version, key ) {
       ReadSet: []
     }
   };
+  var targetPlugs = meterVersioning.filterOutWrongVersions( plugs, version );
 
   // if key is not in the cache
   if ( cache.cache.hasOwnProperty( key ) === false || cache.cache[ key ].hasOwnProperty( version ) ) {
     // create everything from scratch
-    cache.addNewEntriesToCache( plugs, version, key );
+    cache.addNewEntriesToCache( targetPlugs, version, key );
   }
 
-  payload.readMeter.ReadSet = updateExisitingDataSet( plugs, version, key );
+  payload.readMeter.ReadSet = updateExisitingDataSet( targetPlugs, version, key );
   payload.readMeter.Requested = payload.readMeter.ReadSet.length;
   return payload;
 };
