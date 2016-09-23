@@ -19,10 +19,9 @@ var updateExisitingDataSet = function( plugs, version, key ) {
   // add new plugs to the cache
   for ( var numPlugs = plugs.length, j = 0; j < numPlugs; j++ ) {
     var plugFromSystem = plugs[ j ];
-    var plugFromCache = cache.cache[ key ][ version ][ plugFromSystem.ekm_omnimeter_serial ];
 
-    if ( !plugFromCache ) {
-      plugFromCache = cache.addOneNewEntryToCache( plugFromSystem, version, key );
+    if ( !cache.cache[ key ][ version ].hasOwnProperty( plugFromSystem.ekm_omnimeter_serial ) ) {
+      plugFromCache = cache.addOneNewEntryToCache( plugFromSystem.cumulative_kwh, plugFromSystem.ekm_omnimeter_serial, version, key );
     }
   }
 
@@ -50,7 +49,6 @@ var generateFakeResponse = function( plugs, version, key ) {
   // if key or version is not in the cache
   if ( cache.cache.hasOwnProperty( key ) === false || cache.cache[ key ].hasOwnProperty( version ) === false ) {
     // create everything from scratch
-    console.log( 'creating new' );
     cache.addNewEntriesToCache( targetPlugs, version, key );
   }
 

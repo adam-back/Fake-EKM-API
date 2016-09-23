@@ -7,6 +7,16 @@ exports.beginsCharging = function() {
   return Math.random() < .3 ? true : false;
 };
 
+exports.createNewIdle = function( plug ) {
+  return {
+    status: 'idle',
+    error: null,
+    until: null,
+    cumulative_kwh: plug.cumulative_kwh,
+    ekm_omnimeter_serial: plug.ekm_omnimeter_serial
+  };
+};
+
 exports.createIdleReadingValues = function( key, version, plug ) {
   // get kWh from cache
   var idle = cache.cache[ key ][ version ][ plug.ekm_omnimeter_serial ];
@@ -14,6 +24,7 @@ exports.createIdleReadingValues = function( key, version, plug ) {
   // create idle if it doesn't exist
   if ( !idle ) {
     idle = exports.createNewIdle( plug );
+    cache.cache[ key ][ version ][ plug.ekm_omnimeter_serial ] = idle;
   }
 
   return {
@@ -31,7 +42,7 @@ exports.createIdleReadingValues = function( key, version, plug ) {
       "Time_Stamp_UTC_ms": moment().valueOf(),
       "Firmware":"15",
       "Model":"2410",
-      "kWh_Tot": idle.kwh,
+      "kWh_Tot": Number( idle.cumulative_kwh ).toFixed( 1 ),
       "RMS_Volts_Ln_1": faker.random.number( { min: 117, max: 125 } ).toString(),
       "RMS_Volts_Ln_2": faker.random.number( { min: 117, max: 125 } ).toString(),
       "Power_Factor_Ln_1": faker.random.number( { min: 80, max: 125 } ).toString(),
@@ -45,18 +56,8 @@ exports.createNewEvent = function( plug ) {
     status: 'charging',
     error: null,
     until: moment().add( faker.random.number( { min: 5, max: 30 } ), 'minutes' ),
-    kwh: plug.cumulative_kwh,
-    meter: plug.ekm_omnimeter_serial
-  };
-};
-
-exports.createNewIdle = function( plug ) {
-  return {
-    status: 'idle',
-    error: null,
-    until: null,
-    kwh: plug.cumulative_kwh,
-    meter: plug.ekm_omnimeter_serial
+    cumulative_kwh: plug.cumulative_kwh,
+    ekm_omnimeter_serial: plug.ekm_omnimeter_serial
   };
 };
 
@@ -68,7 +69,7 @@ exports.createChargeEventValues = function( key, version, plug ) {
     event = exports.createNewEvent( plug );
   }
   // increment kWh
-  event.kwh += 0.1;
+  event.cumulative_kwh = Number( event.cumulative_kwh ) + 0.1;
   // update cache
   cache.cache[ key ][ version ][ plug.ekm_omnimeter_serial ] = event;
 
@@ -87,7 +88,7 @@ exports.createChargeEventValues = function( key, version, plug ) {
       "Time_Stamp_UTC_ms": moment().valueOf(),
       "Firmware":"13",
       "Model":"1710",
-      "kWh_Tot": event.kwh.toString(),
+      "kWh_Tot": event.cumulative_kwh.toFixed( 1 ),
       "RMS_Volts_Ln_1": faker.random.number( { min: 117, max: 125 } ).toString(),
       "RMS_Volts_Ln_2": faker.random.number( { min: 117, max: 125 } ).toString(),
       "Amps_Ln_1": faker.random.number( { min: 10, max: 25 } ).toString(),

@@ -18,15 +18,15 @@ exports.cache = {
           status: 'charging',
           error: null,
           until: moment object,
-          kwh: 12,
-          meter: '123'
+          cumulative_kwh: 12,
+          ekm_omnimeter_serial: '123'
         },
         '456': {
           status: 'error',
           error: 'Old Read',
           until: moment object,
-          kwh: 15,
-          meter: '456'
+          cumulative_kwh: 15,
+          ekm_omnimeter_serial: '456'
         }
       },
       v4: {
@@ -34,8 +34,8 @@ exports.cache = {
           status: 'idle',
           error: null,
           until: null,
-          kwh: 50,
-          meter: '789'
+          cumulative_kwh: 50,
+          ekm_omnimeter_serial: '789'
         }
       }
     }
@@ -49,28 +49,28 @@ exports.checkForEndedEvents = function( version, key ) {
   var now = moment();
   var close = [];
   for ( var meter in exports.cache[ key ][ version ] ) {
-    var reading = exports.cache[ key ][ version ][ meter ];
-    if ( moment.isMoment( reading.until ) && reading.until.isAfter( now ) ) {
-      close.push( reading );
+    var cachedEvent = exports.cache[ key ][ version ][ meter ];
+    if ( moment.isMoment( cachedEvent.until ) && cachedEvent.until.isAfter( now ) ) {
+      close.push( cachedEvent );
     }
   }
 
   return close;
 };
 
-exports.createIdleData = function( plug ) {
+exports.createIdleData = function( kwh, meter ) {
   return {
     status: 'idle',
     error: null,
     until: null,
-    kWh: plug.cumulative_kwh,
-    meter: plug.ekm_omnimeter_serial
+    cumulative_kwh: kwh,
+    ekm_omnimeter_serial: meter
   };
 };
 
-exports.addOneNewEntryToCache = function( plug, version, key ) {
-  var data = exports.createIdleData( plug );
-  exports.cache[ key ][ version ][ plug.ekm_omnimeter_serial ] = data;
+exports.addOneNewEntryToCache = function( kwh, meter, version, key ) {
+  var data = exports.createIdleData( kwh, meter );
+  exports.cache[ key ][ version ][ meter ] = data;
   return data;
 };
 
@@ -90,7 +90,7 @@ exports.addNewEntriesToCache = function( plugs, version, key, numFake ) {
   // add plugs from actual system
   for ( var numPlugs = plugs.length, i = 0; i < numPlugs; i++ ) {
     var plug = plugs[ i ];
-    exports.addOneNewEntryToCache( plug, version, key );
+    exports.addOneNewEntryToCache( plug.cumulative_kwh, plug.ekm_omnimeter_serial, version, key );
   }
 
   // add # plugs which aren't in system
@@ -98,8 +98,8 @@ exports.addNewEntriesToCache = function( plugs, version, key, numFake ) {
     var fakeMeter = faker.random.number( { min: 10000, max: 400000000 } );
     var fakeKwh = faker.random.number( { min: 0, max: 40000 } );
     fakeKwh += Math.random(); // add decimals
-    fakeKwh = Number( fakeKwh.toFixed( 1 ) ); //round to tenths
-    exports.addOneNewEntryToCache( { ekm_omnimeter_serial: fakeMeter, cumulative_kwh: fakeKwh }, version, key );
+    fakeKwh = fakeKwh.toFixed( 1 ); //round to tenths
+    exports.addOneNewEntryToCache( fakeMeter, fakeKwh, version, key );
   }
 
   return exports.cache[ key ][ version ];

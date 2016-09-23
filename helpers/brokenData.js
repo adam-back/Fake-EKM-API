@@ -34,7 +34,7 @@ exports.typeOfBroken = function() {
 };
 
 
-exports.createBadReading = function( key, version, plug ) {
+exports.createBadReading = function( version, plug ) {
   return {
     "Meter": plug.ekm_omnimeter_serial,
     "Group":564257,
@@ -61,7 +61,7 @@ exports.createOldReading = function( key, version, plug ) {
   return reading;
 };
 
-exports.createReadRingBufferFailure = function( key, version, plug ) {
+exports.createReadRingBufferFailure = function( plug ) {
   return {
     "Meter": plug.ekm_omnimeter_serial,
     "MAC_Addr": extraFake.generateFakeMacAddress(),
@@ -78,9 +78,9 @@ exports.createIncorrectMeterReading = function( key, version, plug ) {
 exports.createBrokenMeterValues = function( key, version, plug, type ) {
   switch ( type ) {
     case 'Bad Reading':
-      return exports.createBadReading( key, version, plug );
+      return exports.createBadReading( version, plug );
     case 'Read Ring Buffer Failure':
-      return exports.createReadRingBufferFailure( key, version, plug );
+      return exports.createReadRingBufferFailure( plug );
     case 'Old Reading':
       return exports.createOldReading( key, version, plug );
     default:
@@ -100,8 +100,8 @@ exports.createBrokenSet = function( key, version, plugs ) {
       status: 'error',
       error: type,
       until: moment().add( exports.howManyMinutesBroken(), 'minutes' ),
-      kwh: plug.ekm_omnimeter_serial,
-      meter: plug.ekm_omnimeter_serial
+      cumulative_kwh: plug.ekm_omnimeter_serial,
+      ekm_omnimeter_serial: plug.ekm_omnimeter_serial
     };
     // push reading
     set.push( broke );
