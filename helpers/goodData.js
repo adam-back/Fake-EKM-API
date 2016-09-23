@@ -25,6 +25,10 @@ exports.createIdleReadingValues = function( key, version, plug ) {
   if ( !idle ) {
     idle = exports.createNewIdle( plug );
     cache.cache[ key ][ version ][ plug.ekm_omnimeter_serial ] = idle;
+  } else {
+    idle.status = 'idle';
+    idle.error = null;
+    idle.until = null;
   }
 
   return {
@@ -67,12 +71,15 @@ exports.createChargeEventValues = function( key, version, plug ) {
   // create charge event if it doesn't exist
   if ( !event ) {
     event = exports.createNewEvent( plug );
+  } else {
+    // increment kWh
+    event.cumulative_kwh = Number( event.cumulative_kwh ) + 0.1;
+    event.status = 'charging';
+    event.until = moment().add( faker.random.number( { min: 5, max: 30 } ), 'minutes' );
   }
-  // increment kWh
-  event.cumulative_kwh = Number( event.cumulative_kwh ) + 0.1;
+
   // update cache
   cache.cache[ key ][ version ][ plug.ekm_omnimeter_serial ] = event;
-
   var fakeReading = {
     "Meter": plug.ekm_omnimeter_serial,
     "Group":564257,

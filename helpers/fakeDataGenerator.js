@@ -5,8 +5,8 @@ var good            = require( './goodData' );
 var fate            = require( './fate' );
 var moment          = require( 'moment' );
 
-var updateExisitingDataSet = function( plugs, version, key ) {
-  var needClosing = cache.checkForEndedEvents( version, key );
+var updateExisitingDataSet = function( plugs, version, key, partial ) {
+  var needClosing = cache.checkForEndedEvents( version, key, partial, plugs );
   var skipList = {};
 
   // create a skip list so those plugs don't get overwritten by system plugs
@@ -33,9 +33,10 @@ var updateExisitingDataSet = function( plugs, version, key ) {
   return [].concat( brokenReadings, goodReadings, chargeReadings );
 };
 
-var generateFakeResponse = function( plugs, version, key ) {
+var generateFakeResponse = function( plugs, version, key, partial ) {
   // meters is an array of meter numbers as string
   // version is a string of v3 or v4
+  // partial is a boolean which specifies whether we're on the /meters path
   cache.lastCalls[ key ] = moment();
   var payload = {
     readMeter: {
@@ -49,10 +50,11 @@ var generateFakeResponse = function( plugs, version, key ) {
   // if key or version is not in the cache
   if ( cache.cache.hasOwnProperty( key ) === false || cache.cache[ key ].hasOwnProperty( version ) === false ) {
     // create everything from scratch
-    cache.addNewEntriesToCache( targetPlugs, version, key );
+    var numFake = partial ? 0 : 10;
+    cache.addNewEntriesToCache( targetPlugs, version, key, numFake );
   }
 
-  payload.readMeter.ReadSet = updateExisitingDataSet( targetPlugs, version, key );
+  payload.readMeter.ReadSet = updateExisitingDataSet( targetPlugs, version, key, partial );
   payload.readMeter.Requested = payload.readMeter.ReadSet.length;
   return payload;
 };

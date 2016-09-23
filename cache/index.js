@@ -42,16 +42,27 @@ exports.cache = {
   */
 };
 
-exports.checkForEndedEvents = function( version, key ) {
+exports.checkForEndedEvents = function( version, key, partial, plugs ) {
   // ended events can be:
   // 1. charging events
   // 2. errors
   var now = moment();
   var close = [];
-  for ( var meter in exports.cache[ key ][ version ] ) {
-    var cachedEvent = exports.cache[ key ][ version ][ meter ];
-    if ( moment.isMoment( cachedEvent.until ) && cachedEvent.until.isAfter( now ) ) {
-      close.push( cachedEvent );
+
+  if ( partial ) {
+    for ( var numPlugs = plugs.length, i = 0; i < numPlugs; i++ ) {
+      var plug = plugs[ i ];
+      var cachedEvent = exports.cache[ key ][ version ][ plug.ekm_omnimeter_serial ];
+      if ( moment.isMoment( cachedEvent.until ) && cachedEvent.until.isAfter( now ) ) {
+        close.push( cachedEvent );
+      }
+    }
+  } else {
+    for ( var meter in exports.cache[ key ][ version ] ) {
+      var cachedEvent = exports.cache[ key ][ version ][ meter ];
+      if ( moment.isMoment( cachedEvent.until ) && cachedEvent.until.isAfter( now ) ) {
+        close.push( cachedEvent );
+      }
     }
   }
 

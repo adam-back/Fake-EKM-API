@@ -15,3 +15,11 @@ exports.filterOutWrongVersions = function( plugs, targetVersion ) {
     return isTargetVersion( plug.ekm_omnimeter_serial, targetVersion );
   });
 };
+
+exports.isAvailableVersion = function( version ) {
+  if ( version === 'v3' || version === 'v4' ) {
+    return true;
+  } else {
+    return false;
+  }
+};
